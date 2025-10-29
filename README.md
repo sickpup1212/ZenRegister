@@ -10,13 +10,15 @@ A beautifully crafted, full-featured point-of-sale (POS) system designed with Ja
 
 Zen Register is a complete cash register solution that combines elegant design with powerful functionality. Perfect for small retail stores, cafes, restaurants, or any business needing a reliable POS system without the complexity of enterprise software.
 
+<img src="https://i.postimg.cc/bwgwSHpK/Zen-Reg1.png" alt="vpay">
+<br>
 <img src="https://i.postimg.cc/6508CNh2/cashpayment.png" alt="cpay">
 <img src="https://i.postimg.cc/X78r90gd/EOD.png" alt="qpay">
 <img src="https://i.postimg.cc/TY9KnXcj/inventory-MGMT.png" alt="gpay">
 <img src="https://i.postimg.cc/pXZmKtBf/receipt.png" alt="spay">
 <img src="https://i.postimg.cc/qMLN2dGZ/startday.png" alt="cvay">
 <img src="https://i.postimg.cc/QxbFcrqc/tillaudit.png" alt="apay">
-<img src="https://i.postimg.cc/bwgwSHpK/Zen-Reg1.png" alt="vpay">
+
 
 ## ✨ Key Features
 
