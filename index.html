@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zen Register - Point of Sale</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="register-container">
+        <!-- Header -->
+        <header class="register-header">
+            <h1 class="brand-title">Zen Register</h1>
+            <div class="header-actions">
+                <div class="header-buttons">
+                    <button class="btn-header btn-start-day" id="btnStartDay">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span>Start Day</span>
+                    </button>
+                    <button class="btn-header btn-audit" id="btnAuditTill" disabled>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        <span>Audit Till</span>
+                    </button>
+                    <button class="btn-header btn-inventory" id="btnInventory" disabled>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                        <span>Inventory</span>
+                    </button>
+                    <button class="btn-header btn-end-day" id="btnEndDay" disabled>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M9 9h6v6H9z"></path>
+                        </svg>
+                        <span>End Day</span>
+                    </button>
+                </div>
+                <div class="session-info">
+                    <span class="session-time" id="sessionTime">00:00</span>
+                    <span class="session-date" id="sessionDate"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Register Interface -->
+        <main class="register-main">
+            <!-- Left Panel - Transaction Area -->
+            <section class="transaction-panel">
+                <!-- Product Entry -->
+                <div class="product-entry">
+                    <label for="productInput" class="visually-hidden">Product Code or Name</label>
+                    <input 
+                        type="text" 
+                        id="productInput" 
+                        class="product-input" 
+                        placeholder="Scan or enter product..."
+                        autocomplete="off"
+                    >
+                    <button class="btn-scan" id="btnScan" aria-label="Add product">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 11 12 14 22 4"></polyline>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Items List -->
+                <div class="items-container">
+                    <div class="items-header">
+                        <span>Item</span>
+                        <span>Qty</span>
+                        <span>Price</span>
+                    </div>
+                    <ul class="items-list" id="itemsList">
+                        <li class="empty-state">
+                            <p>Begin by scanning or entering a product</p>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Subtotal Display -->
+                <div class="subtotal-section">
+                    <div class="subtotal-row">
+                        <span>Subtotal</span>
+                        <span id="subtotalAmount">$0.00</span>
+                    </div>
+                    <div class="subtotal-row">
+                        <span>Tax (8%)</span>
+                        <span id="taxAmount">$0.00</span>
+                    </div>
+                    <div id="discoRow" class="subtotal-row hide">
+                        <span>Discount (<span id="disco_display_percent"></span>%)</span>
+                        <span id="discoAmount">$0.00</span>
+                    </div>
+                </div>
+
+                <!-- Total Display -->
+                <div class="total-display">
+                    <span class="total-label">Total</span>
+                    <span class="total-amount" id="totalAmount">$0.00</span>
+                </div>
+            </section>
+
+            <!-- Right Panel - Controls -->
+            <section class="control-panel">
+                <!-- Number Pad -->
+                <div class="number-pad">
+                    <button class="num-btn" data-value="7">7</button>
+                    <button class="num-btn" data-value="8">8</button>
+                    <button class="num-btn" data-value="9">9</button>
+                    <button class="num-btn" data-value="4">4</button>
+                    <button class="num-btn" data-value="5">5</button>
+                    <button class="num-btn" data-value="6">6</button>
+                    <button class="num-btn" data-value="1">1</button>
+                    <button class="num-btn" data-value="2">2</button>
+                    <button class="num-btn" data-value="3">3</button>
+                    <button class="num-btn" data-value="0">0</button>
+                    <button class="num-btn" data-value="00">00</button>
+                    <button class="num-btn" data-value=".">.</button>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="action-btn btn-clear" id="btnClear">
+                        <span>Clear</span>
+                    </button>
+                    <button class="action-btn btn-void" id="btnVoid">
+                        <span>Void Item</span>
+                    </button>
+                    <button class="action-btn btn-quantity" id="btnQuantity">
+                        <span>Qty</span>
+                    </button>
+                    <button class="action-btn btn-discount" id="btnDiscount">
+                        <span>Discount</span>
+                    </button>
+                </div>
+
+                <!-- Payment Buttons -->
+                <div class="payment-buttons">
+                    <button class="payment-btn btn-cash" id="btnCash">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <span>Cash</span>
+                    </button>
+                    <button class="payment-btn btn-card" id="btnCard">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                            <line x1="1" y1="10" x2="23" y2="10"></line>
+                        </svg>
+                        <span>Card</span>
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal" id="paymentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="paymentTitle">Cash Payment</h2>
+                <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="payment-total">
+                    <span>Amount Due</span>
+                    <span class="payment-amount" id="paymentDue">$0.00</span>
+                </div>
+                <div class="payment-input-group">
+                    <label for="amountTendered">Amount Tendered</label>
+                    <input 
+                        type="text" 
+                        id="amountTendered" 
+                        class="payment-input" 
+                        placeholder="0.00"
+                        autocomplete="off"
+                    >
+                </div>
+                <div class="change-display" id="changeDisplay">
+                    <span>Change</span>
+                    <span class="change-amount" id="changeAmount">$0.00</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="btnCancelPayment">Cancel</button>
+                <button class="btn-primary" id="btnCompletePayment">Complete Sale</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div class="modal" id="receiptModal">
+        <div class="modal-content receipt-modal">
+            <div class="modal-header">
+                <h2>Receipt</h2>
+                <button class="modal-close" id="receiptClose" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="receipt" id="receiptContent">
+                    <!-- Receipt content will be generated here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="btnPrintReceipt">Print</button>
+                <button class="btn-primary" id="btnNewTransaction">New Transaction</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Modal -->
+    <div class="modal" id="inventoryModal">
+        <div class="modal-content inventory-modal">
+            <div class="modal-header">
+                <h2>Inventory Management</h2>
+                <button class="modal-close" id="inventoryClose" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="inventory-actions">
+                    <button class="btn-primary" id="btnAddProduct">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add Product
+                    </button>
+                    <button class="btn-secondary" id="btnUploadInvoice">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        Upload Invoice (CSV)
+                    </button>
+                    <input type="file" id="invoiceFile" accept=".csv" style="display: none;">
+                </div>
+                <div class="inventory-table-container">
+                    <table class="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            <!-- Inventory rows will be generated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="btnCloseInventory">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div class="modal" id="editProductModal">
+        <div class="modal-content edit-product-modal">
+            <div class="modal-header">
+                <h2 id="editProductTitle">Add Product</h2>
+                <button class="modal-close" id="editProductClose" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="productCode">Product Code</label>
+                    <input type="text" id="productCode" class="form-input" placeholder="e.g., 001" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="productName">Product Name</label>
+                    <input type="text" id="productName" class="form-input" placeholder="e.g., Green Tea" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="productPrice">Price</label>
+                    <input type="number" id="productPrice" class="form-input" placeholder="0.00" step="0.01" min="0" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="productStock">Stock Quantity</label>
+                    <input type="number" id="productStock" class="form-input" placeholder="0" step="1" min="0" autocomplete="off">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="btnCancelEdit">Cancel</button>
+                <button class="btn-primary" id="btnSaveProduct">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Day Modal -->
+    <div class="modal" id="startDayModal">
+        <div class="modal-content start-day-modal">
+            <div class="modal-header">
+                <h2>Start Day</h2>
+                <button class="modal-close" id="startDayClose" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="start-day-section">
+                    <h3>Inventory Verification</h3>
+                    <p>Please verify your inventory quantities are correct before starting the day.</p>
+                    <div class="inventory-actions-row">
+                        <button class="btn-secondary btn-small" id="btnAdjustInventoryFromStart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            Adjust Inventory
+                        </button>
+                        <button class="btn-secondary btn-small" id="btnUploadInvoiceFromStart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            Upload Invoice
+                        </button>
+                        <input type="file" id="invoiceFileStartDay" accept=".csv" style="display: none;">
+                    </div>
+                    <div class="inventory-summary" id="inventorySummary">
+                        <!-- Inventory summary will be generated here -->
+                    </div>
+                </div>
+                
+                <div class="start-day-section">
+                    <h3>Starting Cash</h3>
+                    <p>Enter the cash amounts in your till:</p>
+                    <div class="cash-input-grid">
+                        <div class="cash-input-row">
+                            <label>$20 bills:</label>
+                            <input type="number" id="cash20" class="cash-input" min="0" value="0" step="1">
+                            <span class="cash-total" id="total20">$0.00</span>
+                        </div>
+                        <div class="cash-input-row">
+                            <label>$10 bills:</label>
+                            <input type="number" id="cash10" class="cash-input" min="0" value="0" step="1">
+                            <span class="cash-total" id="total10">$0.00</span>
+                        </div>
+                        <div class="cash-input-row">
+                            <label>$5 bills:</label>
+                            <input type="number" id="cash5" class="cash-input" min="0" value="0" step="1">
+                            <span class="cash-total" id="total5">$0.00</span>
+                        </div>
+                        <div class="cash-input-row">
+                            <label>$1 bills:</label>
+                            <input type="number" id="cash1" class="cash-input" min="0" value="0" step="1">
+                            <span class="cash-total" id="total1">$0.00</span>
+                        </div>
+                        <div class="cash-input-row">
+                            <label>Quarters (25¢):</label>
+                            <input type="number" id="cash025" class="cash-input" min="0" value="0" step="1">
+                            <span class="cash-total" id="total025">$0.00</span>
+                        </div>
+                        <div class="cash-input-row">
+                            <label>Dimes (10¢):</label>
+                            <input type="number" id="cash010" class="cash-input" min="0" value="0" step="1">
+                            <span class="cash-total" id="total010">$0.00</span>
+                        </div>
+                        <div class="cash-input-row">
+                            <label>Nickels (5¢):</label>
+                            <input type="number" id="cash005" class="cash-input" min="0" value="0" step="1">
+                            <span class="cash-total" id="total005">$0.00</span>
+                        </div>
+                        <div class="cash-input-row">
+                            <label>Pennies (1¢):</label>
+                            <input type="number" id="cash001" class="cash-input" min="0" value="0" step="1">
+                            <span class="cash-total" id="total001">$0.00</span>
+                        </div>
+                    </div>
+                    <div class="total-starting-cash">
+                        <strong>Total Starting Cash:</strong>
+                        <span id="totalStartingCash">$0.00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="btnCancelStartDay">Cancel</button>
+                <button class="btn-primary" id="btnConfirmStartDay">Start Day</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Till Modal -->
+    <div class="modal" id="auditTillModal">
+        <div class="modal-content audit-modal">
+            <div class="modal-header">
+                <h2>Till Audit</h2>
+                <button class="modal-close" id="auditTillClose" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="audit-section">
+                    <h3>Cash Drawer Status</h3>
+                    <div class="audit-info-grid">
+                        <div class="audit-row">
+                            <span>Starting Cash:</span>
+                            <span id="auditStartingCash">$0.00</span>
+                        </div>
+                        <div class="audit-row">
+                            <span>Cash Sales:</span>
+                            <span id="auditCashSales">$0.00</span>
+                        </div>
+                        <div class="audit-row highlight">
+                            <span>Expected in Drawer:</span>
+                            <span id="auditExpectedCash">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="audit-section">
+                    <h3>Transaction Summary</h3>
+                    <div class="audit-info-grid">
+                        <div class="audit-row">
+                            <span>Total Transactions:</span>
+                            <span id="auditTotalTransactions">0</span>
+                        </div>
+                        <div class="audit-row">
+                            <span>Card Sales:</span>
+                            <span id="auditCardSales">$0.00</span>
+                        </div>
+                        <div class="audit-row">
+                            <span>Total Sales:</span>
+                            <span id="auditTotalSales">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" id="btnCloseAudit">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- End Day Modal -->
+    <div class="modal" id="endDayModal">
+        <div class="modal-content end-day-modal">
+            <div class="modal-header">
+                <h2>End of Day Report</h2>
+                <button class="modal-close" id="endDayClose" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="report-section">
+                    <h3>Sales Summary</h3>
+                    <div class="report-grid">
+                        <div class="report-row">
+                            <span>Cash Sales:</span>
+                            <span id="reportCashSales">$0.00</span>
+                        </div>
+                        <div class="report-row">
+                            <span>Card Sales:</span>
+                            <span id="reportCardSales">$0.00</span>
+                        </div>
+                        <div class="report-row highlight">
+                            <span>Total Sales:</span>
+                            <span id="reportTotalSales">$0.00</span>
+                        </div>
+                        <div class="report-row">
+                            <span>Total Transactions:</span>
+                            <span id="reportTotalTransactions">0</span>
+                        </div>
+                        <div class="report-row">
+                            <span>Average Transaction:</span>
+                            <span id="reportAvgTransaction">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h3>Cash Management</h3>
+                    <div class="report-grid">
+                        <div class="report-row">
+                            <span>Starting Cash:</span>
+                            <span id="reportStartingCash">$0.00</span>
+                        </div>
+                        <div class="report-row">
+                            <span>Cash from Sales:</span>
+                            <span id="reportCashFromSales">$0.00</span>
+                        </div>
+                        <div class="report-row highlight">
+                            <span>Expected in Drawer:</span>
+                            <span id="reportExpectedCash">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h3>Inventory Adjustments</h3>
+                    <div class="inventory-adjustments-table">
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Product</th>
+                                    <th>Starting</th>
+                                    <th>Sold</th>
+                                    <th>Ending</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryAdjustmentsBody">
+                                <!-- Inventory adjustments will be generated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="btnCancelEndDay">Cancel</button>
+                <button class="btn-primary" id="btnConfirmEndDay">Confirm End Day</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,1387 @@
+/* ============================================
+   Zen Register - Minimalist Cash Register UI
+   Design Philosophy: Ma (Negative Space) & Kanso (Simplicity)
+   ============================================ */
+
+/* ============================================
+   CSS Reset & Foundation
+   ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Natural Color Palette - Like weathered wood and mountain mist */
+    --color-primary: #2c3e50;        /* Deep forest */
+    --color-secondary: #34495e;      /* Mountain stone */
+    --color-accent: #3498db;         /* Clear sky */
+    --color-success: #27ae60;        /* Spring bamboo */
+    --color-warning: #f39c12;        /* Harvest moon */
+    --color-error: #e74c3c;          /* Red maple */
+    
+    /* Neutral Tones */
+    --color-bg: #ecf0f1;             /* Morning mist */
+    --color-surface: #ffffff;        /* Pure snow */
+    --color-border: #bdc3c7;         /* River stones */
+    --color-text: #2c3e50;           /* Ink brush */
+    --color-text-light: #7f8c8d;     /* Gentle shadow */
+    
+    /* Typography Scale - Mountain peaks to morning dew */
+    --font-display: 2rem;            /* 32px */
+    --font-heading: 1.5rem;          /* 24px */
+    --font-subheading: 1.125rem;     /* 18px */
+    --font-body: 1rem;               /* 16px */
+    --font-small: 0.875rem;          /* 14px */
+    --font-caption: 0.75rem;         /* 12px */
+    
+    /* Spacing Harmony - Based on 8px grid */
+    --space-xs: 4px;                 /* Pebbles */
+    --space-sm: 8px;                 /* Bamboo nodes */
+    --space-md: 16px;                /* Stone steps */
+    --space-lg: 24px;                /* Garden pathways */
+    --space-xl: 32px;                /* Meditation spaces */
+    --space-2xl: 48px;               /* Mountain views */
+    
+    /* Animation - Gentle breeze */
+    --transition-fast: 200ms ease-out;
+    --transition-base: 300ms ease-out;
+    --transition-slow: 400ms ease-out;
+    
+    /* Shadows - Soft and natural */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.12);
+    
+    /* Border Radius - Gentle curves */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+}
+
+/* ============================================
+   Typography - Whispers of Wisdom
+   ============================================ */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: var(--font-body);
+    line-height: 1.6;
+    color: var(--color-text);
+    background: var(--color-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Visually Hidden - Accessible but invisible */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ============================================
+   Layout - Garden Structure
+   ============================================ */
+.register-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Header - Mountain Peak */
+.register-header {
+    background: var(--color-surface);
+    padding: var(--space-lg) var(--space-xl);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.brand-title {
+    font-size: var(--font-display);
+    font-weight: 300;
+    color: var(--color-primary);
+    letter-spacing: -0.5px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+}
+
+.header-buttons {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.btn-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-small);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-header:hover:not(:disabled) {
+    background: var(--color-bg);
+    border-color: var(--color-text-light);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-header:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-header:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-start-day {
+    border-color: var(--color-success);
+    color: var(--color-success);
+}
+
+.btn-start-day:hover:not(:disabled) {
+    background: var(--color-success);
+    color: white;
+}
+
+.btn-end-day {
+    border-color: var(--color-error);
+    color: var(--color-error);
+}
+
+.btn-end-day:hover:not(:disabled) {
+    background: var(--color-error);
+    color: white;
+}
+
+.btn-audit {
+    border-color: var(--color-warning);
+    color: var(--color-warning);
+}
+
+.btn-audit:hover:not(:disabled) {
+    background: var(--color-warning);
+    color: white;
+}
+
+.btn-inventory {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.btn-inventory:hover:not(:disabled) {
+    background: var(--color-accent);
+    color: white;
+}
+
+.session-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-xs);
+}
+
+.session-time {
+    font-size: var(--font-heading);
+    font-weight: 500;
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+}
+
+.session-date {
+    font-size: var(--font-small);
+    color: var(--color-text-light);
+}
+
+/* Main Register - Flowing Water */
+.register-main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: var(--space-lg);
+    padding: var(--space-lg);
+}
+
+/* ============================================
+   Transaction Panel - Left Side
+   ============================================ */
+.transaction-panel {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Product Entry - Invitation to Begin */
+.product-entry {
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    gap: var(--space-md);
+}
+
+.product-input {
+    flex: 1;
+    padding: var(--space-md);
+    font-size: var(--font-body);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    transition: border-color var(--transition-fast);
+}
+
+.product-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+.product-input::placeholder {
+    color: var(--color-text-light);
+}
+
+.btn-scan {
+    padding: var(--space-md) var(--space-lg);
+    background: var(--color-accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 56px;
+}
+
+.btn-scan:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-scan:active {
+    transform: translateY(0);
+}
+
+/* Items Container - Flowing List */
+.items-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.items-header {
+    display: grid;
+    grid-template-columns: 1fr 80px 100px;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--color-bg);
+    font-size: var(--font-small);
+    font-weight: 600;
+    color: var(--color-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.items-list {
+    list-style: none;
+    overflow-y: auto;
+    flex: 1;
+    padding: var(--space-sm);
+}
+
+.items-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.items-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.items-list::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 4px;
+}
+
+.items-list::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-light);
+}
+
+/* Empty State - Invitation to Possibility */
+.empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    color: var(--color-text-light);
+    font-size: var(--font-body);
+    text-align: center;
+    padding: var(--space-xl);
+}
+
+/* Item Row - Each Transaction Line */
+.item-row {
+    display: grid;
+    grid-template-columns: 1fr 80px 100px;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-md);
+    border-radius: var(--radius-md);
+    transition: background var(--transition-fast);
+    cursor: pointer;
+    align-items: center;
+}
+
+.item-row:hover {
+    background: var(--color-bg);
+}
+
+.item-row.selected {
+    background: #e3f2fd;
+    border-left: 3px solid var(--color-accent);
+}
+
+.item-name {
+    font-size: var(--font-body);
+    color: var(--color-text);
+    font-weight: 500;
+}
+
+.item-quantity {
+    text-align: center;
+    color: var(--color-text-light);
+    font-variant-numeric: tabular-nums;
+}
+
+.item-price {
+    text-align: right;
+    font-weight: 600;
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Subtotal Section - Building Anticipation */
+.subtotal-section {
+    padding: var(--space-lg);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.subtotal-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-body);
+    color: var(--color-text-light);
+}
+
+.subtotal-row span:last-child {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Total Display - The Moment of Truth */
+.total-display {
+    padding: var(--space-xl);
+    background: var(--color-primary);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.total-label {
+    font-size: var(--font-heading);
+    font-weight: 300;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.total-amount {
+    font-size: var(--font-display);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   Control Panel - Right Side
+   ============================================ */
+.control-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+/* Number Pad - Meditation on Numbers */
+.number-pad {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-lg);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+}
+
+.num-btn {
+    aspect-ratio: 1;
+    padding: var(--space-lg);
+    font-size: var(--font-heading);
+    font-weight: 500;
+    background: var(--color-bg);
+    border: 2px solid transparent;
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-variant-numeric: tabular-nums;
+}
+
+.num-btn:hover {
+    background: var(--color-border);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.num-btn:active {
+    transform: translateY(0);
+    background: var(--color-text-light);
+    color: white;
+}
+
+/* Action Buttons - Purposeful Controls */
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+}
+
+.action-btn {
+    padding: var(--space-md) var(--space-lg);
+    font-size: var(--font-body);
+    font-weight: 500;
+    background: var(--color-surface);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+}
+
+.action-btn:hover {
+    border-color: var(--color-text-light);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+}
+
+.btn-clear {
+    border-color: var(--color-error);
+    color: var(--color-error);
+}
+
+.btn-clear:hover {
+    background: var(--color-error);
+    color: white;
+}
+
+.btn-void {
+    border-color: var(--color-warning);
+    color: var(--color-warning);
+}
+
+.btn-void:hover {
+    background: var(--color-warning);
+    color: white;
+}
+
+/* Payment Buttons - The Final Step */
+.payment-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+}
+
+.payment-btn {
+    padding: var(--space-xl);
+    font-size: var(--font-subheading);
+    font-weight: 600;
+    background: var(--color-success);
+    border: none;
+    border-radius: var(--radius-lg);
+    color: white;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.payment-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.payment-btn:active {
+    transform: translateY(0);
+}
+
+.btn-card {
+    background: var(--color-accent);
+}
+
+.btn-card:hover {
+    background: #2980b9;
+}
+
+.btn-cash:hover {
+    background: #229954;
+}
+
+/* ============================================
+   Modal - Focused Moments
+   ============================================ */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-lg);
+    animation: fadeIn var(--transition-base);
+}
+
+.modal.active {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-content {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp var(--transition-base);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.receipt-modal {
+    max-width: 400px;
+}
+
+.inventory-modal {
+    max-width: 800px;
+}
+
+.edit-product-modal {
+    max-width: 500px;
+}
+
+.start-day-modal {
+    max-width: 700px;
+}
+
+.audit-modal {
+    max-width: 600px;
+}
+
+.end-day-modal {
+    max-width: 900px;
+}
+
+.modal-header {
+    padding: var(--space-lg) var(--space-xl);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    font-size: var(--font-heading);
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--color-text-light);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.modal-close:hover {
+    background: var(--color-bg);
+    color: var(--color-text);
+}
+
+.modal-body {
+    padding: var(--space-xl);
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-footer {
+    padding: var(--space-lg) var(--space-xl);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    gap: var(--space-md);
+    justify-content: flex-end;
+}
+
+/* Payment Modal Specific */
+.payment-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-lg);
+    background: var(--color-bg);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-lg);
+}
+
+.payment-amount {
+    font-size: var(--font-display);
+    font-weight: 600;
+    color: var(--color-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+.payment-input-group {
+    margin-bottom: var(--space-lg);
+}
+
+.payment-input-group label {
+    display: block;
+    margin-bottom: var(--space-sm);
+    font-size: var(--font-small);
+    font-weight: 600;
+    color: var(--color-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.payment-input {
+    width: 100%;
+    padding: var(--space-md);
+    font-size: var(--font-heading);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    transition: border-color var(--transition-fast);
+    font-variant-numeric: tabular-nums;
+}
+
+.payment-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+.change-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-lg);
+    background: var(--color-success);
+    color: white;
+    border-radius: var(--radius-md);
+}
+
+.change-amount {
+    font-size: var(--font-display);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Receipt Styling */
+.receipt {
+    font-family: 'Courier New', monospace;
+    font-size: var(--font-small);
+    line-height: 1.8;
+    background: white;
+    padding: var(--space-lg);
+    border: 1px dashed var(--color-border);
+}
+
+.receipt-header {
+    text-align: center;
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-md);
+    border-bottom: 1px dashed var(--color-border);
+}
+
+.receipt-title {
+    font-size: var(--font-heading);
+    font-weight: bold;
+    margin-bottom: var(--space-xs);
+}
+
+.receipt-items {
+    margin: var(--space-lg) 0;
+}
+
+.receipt-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-sm);
+}
+
+.receipt-totals {
+    border-top: 1px dashed var(--color-border);
+    padding-top: var(--space-md);
+    margin-top: var(--space-md);
+}
+
+.receipt-total-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-xs);
+}
+
+.receipt-total-row.grand-total {
+    font-weight: bold;
+    font-size: var(--font-body);
+    margin-top: var(--space-sm);
+    padding-top: var(--space-sm);
+    border-top: 2px solid var(--color-text);
+}
+
+.receipt-footer {
+    text-align: center;
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+    border-top: 1px dashed var(--color-border);
+    color: var(--color-text-light);
+}
+
+/* ============================================
+   Inventory Modal Specific
+   ============================================ */
+.inventory-actions {
+    margin-bottom: var(--space-lg);
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.inventory-table-container {
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-small);
+}
+
+.inventory-table thead {
+    background: var(--color-bg);
+}
+
+.inventory-table th {
+    padding: var(--space-md);
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: var(--font-caption);
+    border-bottom: 2px solid var(--color-border);
+}
+
+.inventory-table td {
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.inventory-table tbody tr:hover {
+    background: var(--color-bg);
+}
+
+.inventory-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.inventory-actions-cell {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.btn-icon {
+    padding: var(--space-xs) var(--space-sm);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: var(--font-small);
+}
+
+.btn-icon:hover {
+    background: var(--color-bg);
+}
+
+.btn-edit {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+}
+
+.btn-edit:hover {
+    background: var(--color-accent);
+    color: white;
+}
+
+.btn-delete {
+    color: var(--color-error);
+    border-color: var(--color-error);
+}
+
+.btn-delete:hover {
+    background: var(--color-error);
+    color: white;
+}
+
+/* Form Styling */
+.form-group {
+    margin-bottom: var(--space-lg);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--space-sm);
+    font-size: var(--font-small);
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.form-input {
+    width: 100%;
+    padding: var(--space-md);
+    font-size: var(--font-body);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    transition: border-color var(--transition-fast);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+/* Button Styles */
+.btn-primary {
+    padding: var(--space-md) var(--space-xl);
+    font-size: var(--font-body);
+    font-weight: 600;
+    background: var(--color-success);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.btn-primary:hover {
+    background: #229954;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    padding: var(--space-md) var(--space-xl);
+    font-size: var(--font-body);
+    font-weight: 600;
+    background: transparent;
+    color: var(--color-text);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-secondary:hover {
+    background: var(--color-bg);
+    border-color: var(--color-text-light);
+}
+
+.hide {
+    display: none;
+}
+
+.show-flex {
+    display: flex;
+}
+
+.show-block {
+    display: block;
+}
+
+.show-grid {
+    display: grid;
+}
+
+/* ============================================
+   Start Day Modal Specific
+   ============================================ */
+.start-day-section {
+    margin-bottom: var(--space-xl);
+}
+
+.start-day-section h3 {
+    font-size: var(--font-subheading);
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-bottom: var(--space-md);
+}
+
+.start-day-section p {
+    color: var(--color-text-light);
+    margin-bottom: var(--space-md);
+}
+
+.inventory-actions-row {
+    display: flex;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.btn-small {
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--font-small);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.inventory-summary {
+    background: var(--color-bg);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.inventory-summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--space-xs) 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.inventory-summary-item:last-child {
+    border-bottom: none;
+}
+
+.cash-input-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.cash-input-row {
+    display: grid;
+    grid-template-columns: 140px 80px 80px;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.cash-input-row label {
+    font-size: var(--font-small);
+    color: var(--color-text);
+}
+
+.cash-input {
+    padding: var(--space-sm);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-small);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.cash-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+.cash-total {
+    font-weight: 600;
+    color: var(--color-success);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.total-starting-cash {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-lg);
+    padding: var(--space-md);
+    background: var(--color-success);
+    color: white;
+    border-radius: var(--radius-md);
+    font-size: var(--font-subheading);
+}
+
+/* ============================================
+   Audit Modal Specific
+   ============================================ */
+.audit-section {
+    margin-bottom: var(--space-xl);
+}
+
+.audit-section:last-child {
+    margin-bottom: 0;
+}
+
+.audit-section h3 {
+    font-size: var(--font-subheading);
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-bottom: var(--space-md);
+}
+
+.audit-info-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.audit-row {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-bg);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-body);
+}
+
+.audit-row.highlight {
+    background: var(--color-accent);
+    color: white;
+    font-weight: 600;
+    font-size: var(--font-subheading);
+}
+
+.audit-row span:last-child {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   End Day Report Modal Specific
+   ============================================ */
+.report-section {
+    margin-bottom: var(--space-xl);
+}
+
+.report-section:last-child {
+    margin-bottom: 0;
+}
+
+.report-section h3 {
+    font-size: var(--font-subheading);
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-sm);
+    border-bottom: 2px solid var(--color-border);
+}
+
+.report-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.report-row {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-bg);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-body);
+}
+
+.report-row.highlight {
+    background: var(--color-primary);
+    color: white;
+    font-weight: 600;
+    font-size: var(--font-subheading);
+}
+
+.report-row span:last-child {
+    font-variant-numeric: tabular-nums;
+}
+
+.inventory-adjustments-table {
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-small);
+}
+
+.report-table thead {
+    background: var(--color-bg);
+}
+
+.report-table th {
+    padding: var(--space-md);
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: var(--font-caption);
+    border-bottom: 2px solid var(--color-border);
+}
+
+.report-table td {
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.report-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.report-table tbody tr:hover {
+    background: var(--color-bg);
+}
+
+.report-table td:nth-child(3),
+.report-table td:nth-child(4),
+.report-table td:nth-child(5) {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   Responsive Design - Bamboo Bending
+   ============================================ */
+@media (max-width: 1024px) {
+    .register-main {
+        grid-template-columns: 1fr;
+    }
+    
+    .control-panel {
+        order: -1;
+    }
+
+    .inventory-modal {
+        max-width: 95%;
+    }
+}
+
+@media (max-width: 768px) {
+    .register-header {
+        padding: var(--space-md) var(--space-lg);
+    }
+
+    .header-actions {
+        gap: var(--space-md);
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .header-buttons {
+        gap: var(--space-xs);
+    }
+
+    .btn-header span {
+        display: none;
+    }
+
+    .btn-header {
+        padding: var(--space-sm);
+        min-width: 36px;
+        justify-content: center;
+    }
+    
+    .brand-title {
+        font-size: var(--font-heading);
+    }
+    
+    .session-time {
+        font-size: var(--font-body);
+    }
+    
+    .register-main {
+        padding: var(--space-md);
+        gap: var(--space-md);
+    }
+    
+    .number-pad {
+        padding: var(--space-md);
+        gap: var(--space-sm);
+    }
+    
+    .num-btn {
+        padding: var(--space-md);
+        font-size: var(--font-body);
+    }
+    
+    .payment-btn {
+        padding: var(--space-lg);
+    }
+    
+    .total-amount {
+        font-size: var(--font-heading);
+    }
+
+    .inventory-table {
+        font-size: var(--font-caption);
+    }
+
+    .inventory-table th,
+    .inventory-table td {
+        padding: var(--space-sm);
+    }
+
+    .cash-input-row {
+        grid-template-columns: 100px 60px 70px;
+        gap: var(--space-sm);
+    }
+
+    .cash-input-row label {
+        font-size: var(--font-caption);
+    }
+}
+
+@media (max-width: 480px) {
+    .items-header {
+        grid-template-columns: 1fr 60px 80px;
+        font-size: var(--font-caption);
+    }
+    
+    .item-row {
+        grid-template-columns: 1fr 60px 80px;
+    }
+    
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .payment-buttons {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
+   Reduced Motion - Respectful Accessibility
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ============================================
+   Print Styles - Receipt Printing
+   ============================================ */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    
+    .receipt,
+    .receipt * {
+        visibility: visible;
+    }
+    
+    .receipt {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+}
