@@ -24,6 +24,7 @@ const state = {
     dayStartTime: null,
     startingCash: 0,
     startingInventory: {},
+    receivedInventory: {},   // units received from vendor orders during the day
     transactions: [],
     cashSales: 0,
     cardSales: 0,
@@ -88,6 +89,7 @@ function saveToStorage() {
             dayStartTime: state.dayStartTime,
             startingCash: state.startingCash,
             startingInventory: state.startingInventory,
+            receivedInventory: state.receivedInventory,
             transactions: state.transactions,
             cashSales: state.cashSales,
             cardSales: state.cardSales
@@ -111,6 +113,7 @@ function loadFromStorage() {
         if (savedDayState) {
             const parsed = JSON.parse(savedDayState);
             Object.assign(state, parsed);
+            if (!state.receivedInventory) state.receivedInventory = {};
             if (state.dayStartTime) state.dayStartTime = new Date(state.dayStartTime);
         }
     } catch (e) {
@@ -989,7 +992,6 @@ async function handleInvoiceUpload(event, fromStartDay) {
             console.log(`CODE: ${code} is a ${typeof(code)}`)
             console.log(`STOCK: ${stock} is a ${typeof(stock)}`)
             console.log(`CODE IN proData: ${code in productDatabase}`)
-            //console.log(`proDataCodeStock: ${productDatabase[code]['stock']}`)
             // Validate data
             if (!code || !name || isNaN(price) || price <= 0 || isNaN(stock) || stock < 0) {
                 errorCount++;
@@ -1013,7 +1015,6 @@ async function handleInvoiceUpload(event, fromStartDay) {
         // Update inventory
         if (fromStartDay) {
             // Update main database directly
-            //Object.keys(productDatabase).forEach(key => delete productDatabase[key]);
             Object.assign(productDatabase, newInventory);
             saveToStorage();
             showNotification(`Inventory updated: ${successCount} products loaded`, 'success');
@@ -1102,6 +1103,7 @@ function confirmStartDay() {
     state.dayStartTime = new Date();
     state.startingCash = startingCash;
     state.startingInventory = JSON.parse(JSON.stringify(productDatabase));
+    state.receivedInventory = {};
     state.transactions = [];
     state.cashSales = 0;
     state.cardSales = 0;
@@ -1167,21 +1169,29 @@ function openEndDayModal() {
     document.getElementById('reportExpectedCash').textContent = formatCurrency(expectedCash);
     
     // Populate inventory adjustments
-    const adjustmentsBody = document.getElementById('inventoryAdjustmentsBody');
-    const sortedCodes = Object.keys(state.startingInventory).sort();
+    // Collect all product codes seen during the day (starting + any new from orders)
+    const allCodes = new Set([
+        ...Object.keys(state.startingInventory),
+        ...Object.keys(productDatabase)
+    ]);
+    const sortedCodes = Array.from(allCodes).sort();
     
+    const adjustmentsBody = document.getElementById('inventoryAdjustmentsBody');
     adjustmentsBody.innerHTML = sortedCodes.map(code => {
-        const startStock = state.startingInventory[code].stock;
-        const endStock = productDatabase[code] ? productDatabase[code].stock : 0;
-        const sold = startStock - endStock;
+        const startStock  = state.startingInventory[code] ? state.startingInventory[code].stock : 0;
+        const received    = state.receivedInventory[code] || 0;
+        const endStock    = productDatabase[code] ? productDatabase[code].stock : 0;
+        const sold        = startStock + received - endStock;
+        const productName = (state.startingInventory[code] || productDatabase[code] || {}).name || code;
         
         return `
             <tr>
                 <td>${code}</td>
-                <td>${state.startingInventory[code].name}</td>
-                <td>${startStock}</td>
-                <td>${sold}</td>
-                <td>${endStock}</td>
+                <td>${productName}</td>
+                <td style="text-align:center">${startStock}</td>
+                <td style="text-align:center;color:var(--color-success);font-weight:600">${received > 0 ? '+' + received : '—'}</td>
+                <td style="text-align:center">${sold}</td>
+                <td style="text-align:center">${endStock}</td>
             </tr>
         `;
     }).join('');
@@ -1208,6 +1218,7 @@ function confirmEndDay() {
     state.dayStartTime = null;
     state.startingCash = 0;
     state.startingInventory = {};
+    state.receivedInventory = {};
     state.transactions = [];
     state.cashSales = 0;
     state.cardSales = 0;
@@ -1223,6 +1234,7 @@ function confirmEndDay() {
     closeEndDayModal();
     showNotification('Day ended successfully. Business date is now ' + getAppDateStr(), 'success');
 }
+
 // ============================================
 // EOD Report Snapshot – for Calendar records
 // ============================================
@@ -1233,12 +1245,22 @@ function generateEODReportHTML() {
     const avgTransaction = state.transactions.length > 0 ? totalSales / state.transactions.length : 0;
     const expectedCash   = state.startingCash + state.cashSales;
 
-    const adjRows = Object.keys(state.startingInventory).sort().map(function(code) {
-        const startStock = state.startingInventory[code].stock;
-        const endStock   = productDatabase[code] ? productDatabase[code].stock : 0;
-        const sold       = startStock - endStock;
-        return '<tr><td>' + code + '</td><td>' + state.startingInventory[code].name +
+    // Collect all codes seen during the day
+    const allCodes = new Set([
+        ...Object.keys(state.startingInventory),
+        ...Object.keys(productDatabase)
+    ]);
+
+    const adjRows = Array.from(allCodes).sort().map(function(code) {
+        const startStock  = state.startingInventory[code] ? state.startingInventory[code].stock : 0;
+        const received    = state.receivedInventory[code] || 0;
+        const endStock    = productDatabase[code] ? productDatabase[code].stock : 0;
+        const sold        = startStock + received - endStock;
+        const productName = (state.startingInventory[code] || productDatabase[code] || {}).name || code;
+
+        return '<tr><td>' + code + '</td><td>' + productName +
                '</td><td class="pw-right">' + startStock +
+               '</td><td class="pw-right">' + (received > 0 ? '+' + received : '\u2014') +
                '</td><td class="pw-right">' + sold +
                '</td><td class="pw-right">' + endStock + '</td></tr>';
     }).join('');
@@ -1261,7 +1283,7 @@ function generateEODReportHTML() {
         '<tr class="pw-total-row"><td>Expected in Drawer</td><td class="pw-right">' + formatCurrency(expectedCash) + '</td></tr>' +
         '</table></div>' +
         (adjRows ? '<div class="pw-eod-section pw-section"><h3>Inventory Adjustments</h3>' +
-        '<table><thead><tr><th>SKU</th><th>Product</th><th class="pw-right">Start</th><th class="pw-right">Sold</th><th class="pw-right">End</th></tr></thead>' +
+        '<table><thead><tr><th>SKU</th><th>Product</th><th class="pw-right">Start</th><th class="pw-right">Received</th><th class="pw-right">Sold</th><th class="pw-right">End</th></tr></thead>' +
         '<tbody>' + adjRows + '</tbody></table></div>' : '') +
         '<div class="pw-doc-footer">Zen Register \u2014 End of Day Record</div>';
 }
