@@ -30,6 +30,23 @@
                         </svg>
                         <span>Audit Till</span>
                     </button>
+                    <button class="btn-header btn-order-guide" id="btnOrderGuide">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <path d="M16 10a4 4 0 0 1-8 0"></path>
+                        </svg>
+                        <span>Order Guide</span>
+                    </button>
+                    <button class="btn-header btn-calendar" id="btnCalendar">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span>Calendar</span>
+                    </button>
                     <button class="btn-header btn-inventory" id="btnInventory" disabled>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
@@ -522,6 +539,130 @@
         </div>
     </div>
 
+    <!-- Order Guide Modal -->
+    <div class="modal" id="orderGuideModal">
+        <div class="modal-content order-guide-modal">
+            <div class="modal-header">
+                <h2>Order Guide</h2>
+                <button class="modal-close" id="orderGuideClose" aria-label="Close">×</button>
+            </div>
+            <div class="order-guide-body">
+
+                <!-- Vendor Sidebar -->
+                <div class="vendor-sidebar">
+                    <div class="vendor-sidebar-title">Vendors</div>
+                    <div id="vendorList"><!-- generated --></div>
+                </div>
+
+                <!-- Catalog Area -->
+                <div class="catalog-area">
+                    <div class="catalog-header">
+                        <div class="catalog-vendor-name" id="catalogVendorName">Select a vendor to browse their catalog</div>
+                        <input type="text" id="ogCatalogSearch" class="catalog-search" placeholder="Search items..." disabled>
+                    </div>
+                    <div class="catalog-table-container">
+                        <table class="catalog-table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Item</th>
+                                    <th>Unit</th>
+                                    <th>Cost</th>
+                                    <th>Sell Price</th>
+                                    <th>Qty</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="catalogTableBody">
+                                <tr>
+                                    <td colspan="7" class="catalog-empty">Select a vendor from the left to browse their catalog</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Order Cart -->
+                <div class="order-cart">
+                    <div class="order-cart-title">Purchase Order</div>
+                    <div class="order-cart-vendor" id="orderCartVendor">No vendor selected</div>
+                    <div id="orderCartItems" class="order-cart-items">
+                        <div class="order-cart-empty">No items added yet</div>
+                    </div>
+                    <div class="order-cart-footer">
+                        <div class="order-cart-total-row">
+                            <span>Order Total (cost):</span>
+                            <span id="orderCartTotal">$0.00</span>
+                        </div>
+                        <div class="order-cart-total-row">
+                            <span>Items:</span>
+                            <span id="orderCartCount">0</span>
+                        </div>
+                        <button class="btn-primary btn-receive-order" id="btnReceiveOrder" disabled>
+                            ✓ Receive Order → Restock
+                        </button>
+                        <button class="btn-secondary btn-clear-order" id="btnClearOrder">
+                            Clear Order
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Calendar Modal -->
+    <div class="modal" id="calendarModal">
+        <div class="modal-content calendar-modal">
+            <div class="modal-header">
+                <h2>Records Calendar</h2>
+                <button class="modal-close" id="calendarClose" aria-label="Close">&times;</button>
+            </div>
+            <div class="calendar-body">
+                <!-- Left: month grid -->
+                <div class="cal-month-panel">
+                    <div class="cal-nav">
+                        <button id="calPrev" class="cal-nav-btn">&#8249;</button>
+                        <span id="calMonthLabel" class="cal-month-label">April 2026</span>
+                        <button id="calNext" class="cal-nav-btn">&#8250;</button>
+                    </div>
+                    <div class="cal-weekdays">
+                        <div>Su</div><div>Mo</div><div>Tu</div><div>We</div>
+                        <div>Th</div><div>Fr</div><div>Sa</div>
+                    </div>
+                    <div id="calGrid" class="cal-grid"></div>
+                    <div class="cal-legend">
+                        <span><span class="cal-dot dot-receipt"></span> Receipts</span>
+                        <span><span class="cal-dot dot-invoice"></span> Invoices</span>
+                        <span><span class="cal-dot dot-eod"></span> EOD</span>
+                    </div>
+                </div>
+                <!-- Right: day detail panel -->
+                <div id="calDayPanel" class="cal-day-panel">
+                    <div class="cal-no-day">&#8592; Select a day to view its records</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Viewer Overlay -->
+    <div class="doc-viewer-overlay" id="docViewer">
+        <div class="doc-viewer-content">
+            <div class="doc-viewer-header">
+                <span id="docViewerTitle" class="doc-viewer-title">Document</span>
+                <div class="doc-viewer-actions">
+                    <button id="docPrintBtn" class="btn-secondary btn-sm">&#128424; Print</button>
+                    <button id="docViewerClose" class="modal-close" aria-label="Close">&times;</button>
+                </div>
+            </div>
+            <div id="docViewerBody" class="doc-viewer-body"></div>
+        </div>
+    </div>
+
+    <script src="paperwork.js"></script>
     <script src="app.js"></script>
+    <script src="order-guide.js"></script>
+    <script src="calendar.js"></script>
 </body>
 </html>

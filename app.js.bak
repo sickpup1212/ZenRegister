@@ -1,7 +1,7 @@
-//**
-// * Zen Register - Cash Register Application
-// * Philosophy: Smooth interactions like water flowing over stones
-//**
+/**
+ * Zen Register - Cash Register Application
+ * Philosophy: Smooth interactions like water flowing over stones
+ */
 
 // ============================================
 // State Management - The Garden's Current State
@@ -26,8 +26,7 @@ const state = {
     startingInventory: {},
     transactions: [],
     cashSales: 0,
-    cardSales: 0,
-    appDate: null    // 'YYYY-MM-DD' business date; advances on EOD
+    cardSales: 0
 };
 
 // Sample product database - In production, this would come from a backend
@@ -43,94 +42,6 @@ const productDatabase = {
     '009': { name: 'Gyoza', price: 6.50, stock: 45 },
     '010': { name: 'Tempura', price: 9.00, stock: 28 }
 };
-
-// ============================================
-// LocalStorage Persistence - The Garden's Memory
-// ============================================
-const STORAGE_KEYS = {
-    products: 'zenRegister_products',
-    dayState: 'zenRegister_dayState',
-    appDate: 'zenRegister_appDate'
-};
-
-
-// ============================================
-// App Date – Business date decoupled from wall clock
-// ============================================
-function realDateStr() {
-    const d = new Date();
-    return d.getFullYear() + '-' +
-           String(d.getMonth() + 1).padStart(2, '0') + '-' +
-           String(d.getDate()).padStart(2, '0');
-}
-function getAppDateStr() {
-    return state.appDate || realDateStr();
-}
-function getAppDateObj() {
-    const parts = getAppDateStr().split('-');
-    return new Date(+parts[0], +parts[1] - 1, +parts[2]);
-}
-function advanceAppDate() {
-    const d = getAppDateObj();
-    d.setDate(d.getDate() + 1);
-    state.appDate = d.getFullYear() + '-' +
-                    String(d.getMonth() + 1).padStart(2, '0') + '-' +
-                    String(d.getDate()).padStart(2, '0');
-    localStorage.setItem(STORAGE_KEYS.appDate, state.appDate);
-}
-
-function saveToStorage() {
-    try {
-        localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(productDatabase));
-        if (state.appDate) localStorage.setItem(STORAGE_KEYS.appDate, state.appDate);
-        localStorage.setItem(STORAGE_KEYS.dayState, JSON.stringify({
-            dayStarted: state.dayStarted,
-            dayStartTime: state.dayStartTime,
-            startingCash: state.startingCash,
-            startingInventory: state.startingInventory,
-            transactions: state.transactions,
-            cashSales: state.cashSales,
-            cardSales: state.cardSales
-        }));
-    } catch (e) {
-        console.warn('Could not save to localStorage:', e);
-    }
-}
-
-function loadFromStorage() {
-    try {
-        const savedProducts = localStorage.getItem(STORAGE_KEYS.products);
-        if (savedProducts) {
-            const parsed = JSON.parse(savedProducts);
-            Object.keys(productDatabase).forEach(k => delete productDatabase[k]);
-            Object.assign(productDatabase, parsed);
-        }
-        const savedAppDate = localStorage.getItem(STORAGE_KEYS.appDate);
-        if (savedAppDate) state.appDate = savedAppDate;
-        const savedDayState = localStorage.getItem(STORAGE_KEYS.dayState);
-        if (savedDayState) {
-            const parsed = JSON.parse(savedDayState);
-            Object.assign(state, parsed);
-            if (state.dayStartTime) state.dayStartTime = new Date(state.dayStartTime);
-        }
-    } catch (e) {
-        console.warn('Could not load from localStorage:', e);
-    }
-}
-
-function restoreUIState() {
-    if (state.dayStarted) {
-        elements.btnStartDay.disabled = true;
-        elements.btnEndDay.disabled = false;
-        elements.btnAuditTill.disabled = false;
-        elements.btnInventory.disabled = false;
-    } else {
-        elements.btnStartDay.disabled = false;
-        elements.btnEndDay.disabled = true;
-        elements.btnAuditTill.disabled = true;
-        elements.btnInventory.disabled = true;
-    }
-}
 
 // ============================================
 // DOM Elements - Gathering the Stones
@@ -248,8 +159,6 @@ const elements = {
 // Initialization - Setting the Garden
 // ============================================
 function init() {
-    loadFromStorage();
-    restoreUIState();
     updateDateTime();
     setInterval(updateDateTime, 1000);
     attachEventListeners();
@@ -462,11 +371,6 @@ function clearTransaction() {
         state.currentInput = '';
         state.quantityMode = false;
         state.discountMode = false;
-        state.discount = 0;
-        elements.discoRow.classList.remove('show-flex');
-        elements.discoRow.classList.add('hide');
-        elements.discoDisplay.textContent = 0;
-        elements.discoAmount.textContent = '$0.00';
         updateDisplay();
     }
 }
@@ -493,8 +397,7 @@ function toggleQuantityMode() {
         elements.productInput.placeholder = 'Enter quantity...';
         elements.productInput.focus();
     } else {
-        const parsed = parseInt(elements.productInput.value.trim(), 10);
-        state.quantity = (parsed > 0) ? parsed : 1;
+        state.quantity = Number(elements.productInput.value.trim());
         elements.productInput.value = '';
         elements.btnQuantity.style.background = '';
         elements.btnQuantity.style.color = '';
@@ -523,10 +426,16 @@ function toggleDiscountMode() {
         elements.productInput.placeholder = 'Enter discount %...';
         elements.productInput.focus();
     } else {
-        const discountPercent = parseFloat(elements.productInput.value.trim()) || 0;
-        state.discount = discountPercent / 100;
-        elements.discoDisplay.textContent = discountPercent;
-        elements.discoAmount.textContent = formatCurrency(roundCurrency(calculateSubtotal() * state.discount));
+        state.discount = Number(elements.productInput.value.trim())/100;
+        elements.discoDisplay.textContent = Number(state.discount)*100;
+        const discoReduction = Number(calculateSubtotal() * state.discount).toFixed(2)
+        if (countDecimalPlaces(discoReduction) === 1) {
+            elements.discoAmount.textContent = `$${discoReduction}0`;
+        } else if (countDecimalPlaces(discoReduction) === 2) {
+            elements.discoAmount.textContent = `$${discoReduction}`;
+        } else {
+            elements.discoAmount.textContent = `$${discoReduction}.00`;	
+        }
         updateTotals();
         elements.discoRow.classList.remove('hide');
         elements.discoRow.classList.add('show-flex');
@@ -573,32 +482,15 @@ function selectItem(index) {
 
 function updateTotals() {
     const subtotal = calculateSubtotal();
-    const tax = roundCurrency(subtotal * state.taxRate);
-    const total = calculateTotal();
+    const tax = subtotal * state.taxRate;
+    const total = state.discount > 0 && state.discount < 1 ? (subtotal + tax) - (subtotal * state.discount) : subtotal + tax;
     elements.totalAmount.textContent = formatCurrency(total);
     elements.subtotalAmount.textContent = formatCurrency(subtotal);
     elements.taxAmount.textContent = formatCurrency(tax);
 }
 
 function calculateSubtotal() {
-    return roundCurrency(
-        state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-    );
-}
-
-// Single source of truth for the transaction total
-function calculateTotal() {
-    const subtotal = calculateSubtotal();
-    const tax = roundCurrency(subtotal * state.taxRate);
-    const discount = (state.discount > 0 && state.discount < 1)
-        ? roundCurrency(subtotal * state.discount)
-        : 0;
-    return roundCurrency(subtotal + tax - discount);
-}
-
-// Round to two decimal places to avoid floating-point drift
-function roundCurrency(amount) {
-    return Math.round(amount * 100) / 100;
+    return state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 }
 
 // ============================================
@@ -609,7 +501,14 @@ function openPaymentModal(type) {
         showNotification('No items in transaction', 'warning');
         return;
     }
-    elements.paymentDue.textContent = formatCurrency(calculateTotal());
+    if (state.discount > 0 && state.discount < 1) {
+        const discountTotal = calculateSubtotal() * state.discount
+        const total = (calculateSubtotal() + (calculateSubtotal() * state.taxRate)) - (calculateSubtotal() * state.discount);
+        elements.paymentDue.textContent = formatCurrency(total);
+    } else { 
+        const total = calculateSubtotal() + (calculateSubtotal() * state.taxRate);
+        elements.paymentDue.textContent = formatCurrency(total);
+    }
     elements.paymentTitle.textContent = type === 'cash' ? 'Cash Payment' : 'Card Payment';
     elements.amountTendered.value = '';
     elements.changeAmount.textContent = '$0.00';
@@ -632,9 +531,9 @@ function closePaymentModal() {
 }
 
 function calculateChange() {
-    const total = calculateTotal();
+    const total = state.discount > 0 ? (calculateSubtotal() + (calculateSubtotal() * state.taxRate)) - (calculateSubtotal() * state.discount) : calculateSubtotal() + (calculateSubtotal() * state.taxRate);
     const tendered = parseFloat(elements.amountTendered.value) || 0;
-    const change = roundCurrency(tendered - total);
+    const change = tendered - total;
     
     elements.changeAmount.textContent = formatCurrency(Math.max(0, change));
     
@@ -647,7 +546,7 @@ function calculateChange() {
 
 function completePayment() {
     const paymentType = elements.paymentModal.dataset.type;
-    const total = calculateTotal();
+    const total = state.discount > 0 ? (calculateSubtotal() + (calculateSubtotal() * state.taxRate)) - (calculateSubtotal() * state.discount) : calculateSubtotal() + (calculateSubtotal() * state.taxRate);
     
     if (paymentType === 'cash') {
         const tendered = parseFloat(elements.amountTendered.value) || 0;
@@ -661,7 +560,6 @@ function completePayment() {
     if (state.dayStarted) {
         recordTransaction(paymentType, total);
         updateInventoryFromSale();
-        saveToStorage();
     }
     
     closePaymentModal();
@@ -680,9 +578,9 @@ function recordTransaction(paymentType, total) {
     state.transactions.push(transaction);
     
     if (paymentType === 'cash') {
-        state.cashSales = roundCurrency(state.cashSales + total);
+        state.cashSales += total;
     } else {
-        state.cardSales = roundCurrency(state.cardSales + total);
+        state.cardSales += total;
     }
 }
 
@@ -700,16 +598,15 @@ function updateInventoryFromSale() {
 function generateReceipt(paymentType) {
     const now = new Date();
     const subtotal = calculateSubtotal();
-    const tax = roundCurrency(subtotal * state.taxRate);
-    const disc = (state.discount > 0) ? roundCurrency(subtotal * state.discount) : 0;
-    const disc_perc = state.discount > 0 ? (state.discount * 100).toFixed(0) : 0;
-    const total = calculateTotal();
-    const taxRateLabel = (state.taxRate * 100).toFixed(0);
+    const tax = subtotal * state.taxRate;
+    const disc = state.discount > 0 ? subtotal * state.discount : 0
+    const disc_perc = state.discount > 0 ? state.discount * 100 : 0
+    const total = (subtotal + tax) - disc;
     
     const receiptHTML = `
         <div class="receipt-header">
             <div class="receipt-title">ZEN REGISTER</div>
-            <div>${getAppDateObj().toLocaleDateString()} ${now.toLocaleTimeString()}</div>
+            <div>${now.toLocaleDateString()} ${now.toLocaleTimeString()}</div>
         </div>
         
         <div class="receipt-items">
@@ -733,7 +630,7 @@ function generateReceipt(paymentType) {
             ${state.discount > 0 ? `
                 <div class="receipt-total-row">
                     <span>Discount (${disc_perc}%):</span>
-                    <span>-$${disc.toFixed(2)}</span>
+                    <span>$${disc.toFixed(2)}</span>
                 </div>
             ` : ''}  
             <div class="receipt-total-row grand-total">
@@ -763,10 +660,6 @@ function generateReceipt(paymentType) {
     `;
     
     elements.receiptContent.innerHTML = receiptHTML;
-    // Save to daily paperwork record
-    if (typeof PW !== 'undefined') {
-        PW.saveReceipt(receiptHTML, paymentType, total, now);
-    }
     elements.discoRow.classList.remove('show-flex');
     elements.discoRow.classList.add('hide');
     elements.discoDisplay.textContent = 0;
@@ -797,10 +690,10 @@ function openInventoryModal() {
 }
 
 function closeInventoryModal() {
-    Object.keys(productDatabase).forEach(key => delete productDatabase[key]);
+    // Update the main productDatabase with the temp inventory
+    //Object.keys(productDatabase).forEach(key => delete productDatabase[key]);
     Object.assign(productDatabase, state.tempInventory);
     state.tempInventory = {};
-    saveToStorage();
     elements.inventoryModal.classList.remove('active');
     showNotification('Inventory updated', 'success');
 }
@@ -1015,12 +908,12 @@ async function handleInvoiceUpload(event, fromStartDay) {
             // Update main database directly
             //Object.keys(productDatabase).forEach(key => delete productDatabase[key]);
             Object.assign(productDatabase, newInventory);
-            saveToStorage();
             showNotification(`Inventory updated: ${successCount} products loaded`, 'success');
+            // Reopen start day modal with updated inventory
             setTimeout(() => openStartDayModal(), 300);
         } else {
-            // Merge into temp inventory
-            Object.assign(state.tempInventory, newInventory);
+            // Update temp inventory for inventory modal
+            state.tempInventory = newInventory;
             populateInventoryTable();
             showNotification(`Invoice loaded: ${successCount} products${errorCount > 0 ? ` (${errorCount} errors)` : ''}`, 'success');
         }
@@ -1073,7 +966,7 @@ function updateCashTotal(input, totalElement, value) {
 }
 
 function updateAllCashTotals() {
-    const total = roundCurrency(
+    const total = 
         (parseInt(elements.cash20.value) || 0) * 20 +
         (parseInt(elements.cash10.value) || 0) * 10 +
         (parseInt(elements.cash5.value) || 0) * 5 +
@@ -1081,8 +974,8 @@ function updateAllCashTotals() {
         (parseInt(elements.cash025.value) || 0) * 0.25 +
         (parseInt(elements.cash010.value) || 0) * 0.10 +
         (parseInt(elements.cash005.value) || 0) * 0.05 +
-        (parseInt(elements.cash001.value) || 0) * 0.01
-    );
+        (parseInt(elements.cash001.value) || 0) * 0.01;
+    
     elements.totalStartingCash.textContent = formatCurrency(total);
 }
 
@@ -1112,7 +1005,6 @@ function confirmStartDay() {
     elements.btnAuditTill.disabled = false;
     elements.btnInventory.disabled = false;
     
-    saveToStorage();
     closeStartDayModal();
     showNotification('Day started successfully', 'success');
 }
@@ -1194,15 +1086,6 @@ function closeEndDayModal() {
 }
 
 function confirmEndDay() {
-    // Snapshot EOD report before clearing state
-    if (typeof PW !== 'undefined') {
-        const eodHTML = generateEODReportHTML();
-        PW.saveEOD(eodHTML, new Date(), {
-            cashSales:    state.cashSales,
-            cardSales:    state.cardSales,
-            transactions: state.transactions.length
-        });
-    }
     // Reset day state
     state.dayStarted = false;
     state.dayStartTime = null;
@@ -1218,54 +1101,9 @@ function confirmEndDay() {
     elements.btnAuditTill.disabled = true;
     elements.btnInventory.disabled = true;
     
-    advanceAppDate();     // move business date forward one day
-    saveToStorage();
     closeEndDayModal();
-    showNotification('Day ended successfully. Business date is now ' + getAppDateStr(), 'success');
+    showNotification('Day ended successfully', 'success');
 }
-// ============================================
-// EOD Report Snapshot – for Calendar records
-// ============================================
-function generateEODReportHTML() {
-    const now      = new Date();
-    const appDate  = getAppDateObj();
-    const totalSales     = state.cashSales + state.cardSales;
-    const avgTransaction = state.transactions.length > 0 ? totalSales / state.transactions.length : 0;
-    const expectedCash   = state.startingCash + state.cashSales;
-
-    const adjRows = Object.keys(state.startingInventory).sort().map(function(code) {
-        const startStock = state.startingInventory[code].stock;
-        const endStock   = productDatabase[code] ? productDatabase[code].stock : 0;
-        const sold       = startStock - endStock;
-        return '<tr><td>' + code + '</td><td>' + state.startingInventory[code].name +
-               '</td><td class="pw-right">' + startStock +
-               '</td><td class="pw-right">' + sold +
-               '</td><td class="pw-right">' + endStock + '</td></tr>';
-    }).join('');
-
-    return '<div class="pw-doc-header">' +
-        '<div class="pw-doc-title">END OF DAY REPORT</div>' +
-        '<div class="pw-doc-meta">' + appDate.toLocaleDateString() +
-        ' &nbsp;&bull;&nbsp; Closed: ' + now.toLocaleTimeString() + '</div>' +
-        '</div>' +
-        '<div class="pw-eod-section pw-section"><h3>Sales Summary</h3>' +
-        '<table><tr><td>Cash Sales</td><td class="pw-right">' + formatCurrency(state.cashSales) + '</td></tr>' +
-        '<tr><td>Card Sales</td><td class="pw-right">' + formatCurrency(state.cardSales) + '</td></tr>' +
-        '<tr class="pw-total-row"><td>Total Sales</td><td class="pw-right">' + formatCurrency(totalSales) + '</td></tr>' +
-        '<tr><td>Transactions</td><td class="pw-right">' + state.transactions.length + '</td></tr>' +
-        '<tr><td>Avg Transaction</td><td class="pw-right">' + formatCurrency(avgTransaction) + '</td></tr>' +
-        '</table></div>' +
-        '<div class="pw-eod-section pw-section"><h3>Cash Management</h3>' +
-        '<table><tr><td>Starting Cash</td><td class="pw-right">' + formatCurrency(state.startingCash) + '</td></tr>' +
-        '<tr><td>Cash from Sales</td><td class="pw-right">' + formatCurrency(state.cashSales) + '</td></tr>' +
-        '<tr class="pw-total-row"><td>Expected in Drawer</td><td class="pw-right">' + formatCurrency(expectedCash) + '</td></tr>' +
-        '</table></div>' +
-        (adjRows ? '<div class="pw-eod-section pw-section"><h3>Inventory Adjustments</h3>' +
-        '<table><thead><tr><th>SKU</th><th>Product</th><th class="pw-right">Start</th><th class="pw-right">Sold</th><th class="pw-right">End</th></tr></thead>' +
-        '<tbody>' + adjRows + '</tbody></table></div>' : '') +
-        '<div class="pw-doc-footer">Zen Register \u2014 End of Day Record</div>';
-}
-
 
 // ============================================
 // Utility Functions - Helper Stones
@@ -1346,7 +1184,6 @@ document.addEventListener('keydown', (e) => {
         closeStartDayModal();
         closeAuditTillModal();
         closeEndDayModal();
-        if (typeof closeOrderGuideModal === 'function') closeOrderGuideModal();
     }
     
     // F1 for Cash payment

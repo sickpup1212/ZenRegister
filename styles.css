@@ -1372,12 +1372,12 @@ body {
     body * {
         visibility: hidden;
     }
-    
+
     .receipt,
     .receipt * {
         visibility: visible;
     }
-    
+
     .receipt {
         position: absolute;
         left: 0;
@@ -1385,3 +1385,784 @@ body {
         width: 100%;
     }
 }
+
+/* ============================================
+   Order Guide - Vendor Catalog & Purchase Orders
+   ============================================ */
+
+.btn-order-guide {
+    background: var(--color-surface);
+    color: var(--color-secondary);
+    border: 1px solid var(--color-border);
+}
+.btn-order-guide:hover {
+    background: #8e44ad;
+    color: white;
+    border-color: #8e44ad;
+}
+
+.order-guide-modal {
+    width: 96vw;
+    max-width: 1400px;
+    height: 88vh;
+    max-height: 900px;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+}
+
+.order-guide-modal .modal-header {
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.order-guide-body {
+    display: grid;
+    grid-template-columns: 200px 1fr 280px;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* ---- Vendor Sidebar ---- */
+.vendor-sidebar {
+    background: var(--color-primary);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+.vendor-sidebar-title {
+    font-size: var(--font-caption);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    padding: var(--space-md) var(--space-md) var(--space-sm);
+}
+
+.vendor-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+.vendor-item:hover { background: rgba(255,255,255,0.07); }
+.vendor-item.active {
+    background: rgba(255,255,255,0.12);
+    border-left-color: var(--vendor-color, white);
+}
+
+.vendor-item-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.vendor-item-info { flex: 1; min-width: 0; }
+
+.vendor-item-name {
+    font-size: var(--font-small);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: rgba(255,255,255,0.92);
+}
+
+.vendor-item-category {
+    font-size: var(--font-caption);
+    color: rgba(255,255,255,0.45);
+    margin-top: 1px;
+}
+
+.vendor-item-count {
+    font-size: var(--font-caption);
+    background: rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 1px 6px;
+    color: rgba(255,255,255,0.6);
+    flex-shrink: 0;
+}
+
+/* ---- Catalog Area ---- */
+.catalog-area {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--color-bg);
+}
+
+.catalog-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.catalog-vendor-name {
+    font-weight: 600;
+    font-size: var(--font-subheading);
+    color: var(--color-primary);
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.catalog-search {
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-small);
+    width: 220px;
+    background: var(--color-bg);
+    color: var(--color-text);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.catalog-search:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(52,152,219,0.12);
+}
+.catalog-search:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.catalog-table-container { flex: 1; overflow-y: auto; }
+
+.catalog-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-small);
+}
+
+.catalog-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--color-surface);
+}
+
+.catalog-table th {
+    padding: var(--space-sm) var(--space-md);
+    text-align: left;
+    font-size: var(--font-caption);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-text-light);
+    border-bottom: 2px solid var(--color-border);
+}
+
+.catalog-table td {
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: 1px solid rgba(189,195,199,0.4);
+    vertical-align: middle;
+}
+
+.catalog-table tr:hover td { background: rgba(52,152,219,0.04); }
+
+.catalog-row-ordered td { background: rgba(39,174,96,0.06); }
+.catalog-row-ordered:hover td { background: rgba(39,174,96,0.1); }
+
+.catalog-code { color: var(--color-text-light); font-family: monospace; }
+.catalog-name { font-weight: 500; }
+.catalog-unit { color: var(--color-text-light); }
+.catalog-cost { color: var(--color-text-light); }
+.catalog-price { color: var(--color-success); font-weight: 500; }
+
+.catalog-qty-input {
+    width: 64px;
+    padding: 4px var(--space-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-small);
+    text-align: center;
+    color: var(--color-text);
+    background: var(--color-surface);
+}
+.catalog-qty-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+.catalog-add-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-light);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    line-height: 1;
+}
+.catalog-add-btn:hover {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: white;
+}
+.catalog-add-btn.active {
+    background: var(--color-success);
+    border-color: var(--color-success);
+    color: white;
+    font-size: 13px;
+}
+
+.catalog-empty {
+    text-align: center;
+    padding: var(--space-2xl);
+    color: var(--color-text-light);
+    font-size: var(--font-small);
+}
+
+/* ---- Order Cart ---- */
+.order-cart {
+    background: var(--color-surface);
+    border-left: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.order-cart-title {
+    font-size: var(--font-caption);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-light);
+    padding: var(--space-md) var(--space-md) var(--space-xs);
+}
+
+.order-cart-vendor {
+    font-size: var(--font-small);
+    font-weight: 500;
+    color: var(--color-primary);
+    padding: 0 var(--space-md) var(--space-sm);
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.order-cart-items {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-sm) 0;
+}
+
+.order-cart-empty {
+    text-align: center;
+    padding: var(--space-xl) var(--space-md);
+    color: var(--color-text-light);
+    font-size: var(--font-small);
+}
+
+.order-cart-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: 1px solid rgba(189,195,199,0.3);
+}
+.order-cart-item:hover { background: var(--color-bg); }
+
+.order-cart-item-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.order-cart-item-name {
+    font-size: var(--font-small);
+    font-weight: 500;
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.order-cart-item-meta {
+    font-size: var(--font-caption);
+    color: var(--color-text-light);
+    margin-top: 1px;
+}
+
+.order-cart-item-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    flex-shrink: 0;
+}
+
+.order-cart-item-qty { font-size: var(--font-caption); color: var(--color-text-light); }
+
+.order-cart-item-cost {
+    font-size: var(--font-small);
+    font-weight: 500;
+    color: var(--color-primary);
+    min-width: 48px;
+    text-align: right;
+}
+
+.order-cart-remove {
+    background: none;
+    border: none;
+    color: var(--color-text-light);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0 2px;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition-fast), background var(--transition-fast);
+}
+.order-cart-remove:hover {
+    color: var(--color-error);
+    background: rgba(231,76,60,0.08);
+}
+
+.order-cart-footer {
+    padding: var(--space-md);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.order-cart-total-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-small);
+    color: var(--color-text);
+}
+.order-cart-total-row span:last-child { font-weight: 600; }
+
+.btn-receive-order {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--font-small);
+}
+.btn-receive-order:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btn-clear-order {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--font-small);
+}
+
+
+/* ============================================================
+   Calendar Button
+   ============================================================ */
+.btn-calendar {
+    background: linear-gradient(135deg, var(--color-accent), #6c5ce7);
+    color: white;
+    border: none;
+}
+.btn-calendar:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+}
+
+/* ============================================================
+   Calendar Modal
+   ============================================================ */
+.calendar-modal {
+    width: 96vw;
+    max-width: 900px;
+    height: 80vh;
+    max-height: 680px;
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-body {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 0;
+    flex: 1;
+    overflow: hidden;
+    border-top: 1px solid var(--color-border);
+}
+
+/* ── Month panel (left) ── */
+.cal-month-panel {
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cal-nav-btn {
+    background: none;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    font-size: 1.3em;
+    cursor: pointer;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+.cal-nav-btn:hover:not(:disabled) { background: var(--color-border); }
+.cal-nav-btn:disabled { opacity: 0.35; cursor: default; }
+
+.cal-month-label {
+    font-weight: 600;
+    font-size: 1em;
+    color: var(--color-text);
+}
+
+.cal-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-size: 0.72em;
+    font-weight: 600;
+    color: var(--color-text-muted, #888);
+    letter-spacing: 0.03em;
+}
+
+.cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.82em;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.12s;
+    user-select: none;
+    padding: 2px 0;
+}
+.cal-day:hover:not(.cal-future):not(.cal-empty) {
+    background: var(--color-border);
+}
+.cal-empty  { cursor: default; }
+.cal-future { color: var(--color-text-muted, #bbb); cursor: default; }
+
+.cal-today {
+    background: var(--color-accent);
+    color: white;
+    font-weight: 700;
+}
+.cal-today:hover { background: var(--color-accent); opacity: 0.9; }
+
+.cal-selected {
+    background: var(--color-accent) !important;
+    color: white !important;
+    font-weight: 700;
+}
+
+.cal-has-data { font-weight: 600; }
+
+.cal-dots {
+    display: flex;
+    gap: 2px;
+    margin-top: 2px;
+}
+
+.cal-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.dot-receipt { background: #3498db; }
+.dot-invoice { background: #e67e22; }
+.dot-eod     { background: #27ae60; }
+
+/* legend */
+.cal-legend {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 0.72em;
+    color: var(--color-text-muted, #888);
+    margin-top: auto;
+}
+.cal-legend span { display: flex; align-items: center; gap: 4px; }
+.cal-legend .cal-dot { width: 8px; height: 8px; }
+
+/* ── Day panel (right) ── */
+.cal-day-panel {
+    padding: 16px 20px;
+    overflow-y: auto;
+    background: var(--color-bg, #fff);
+}
+
+.cal-no-day,
+.cal-no-records {
+    color: var(--color-text-muted, #999);
+    font-style: italic;
+    margin-top: 40px;
+    text-align: center;
+}
+
+.cal-day-title {
+    font-size: 1.05em;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--color-border);
+}
+
+.cal-section {
+    margin-bottom: 16px;
+}
+
+.cal-section-hdr {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.88em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted, #555);
+    margin-bottom: 6px;
+}
+
+.cal-sect-icon { font-size: 1em; }
+.dot-receipt-icon { color: #3498db; }
+.dot-invoice-icon { color: #e67e22; }
+.dot-eod-icon     { color: #27ae60; }
+
+.cal-sect-count { font-weight: 400; color: var(--color-text-muted, #888); }
+.cal-sect-total { margin-left: auto; font-weight: 700; color: var(--color-text); }
+
+.cal-doc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.cal-doc-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: background 0.12s;
+    font-size: 0.88em;
+}
+.cal-doc-row:hover { background: var(--color-border); }
+
+.cal-doc-time   { color: var(--color-text-muted, #888); font-size: 0.9em; min-width: 52px; }
+.cal-doc-vendor { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cal-doc-amt    { font-weight: 600; min-width: 60px; text-align: right; }
+
+.cal-doc-tag {
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 0.78em;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.tag-cash { background: #d4edda; color: #155724; }
+.tag-card { background: #cce5ff; color: #004085; }
+
+.cal-view-btn {
+    margin-left: auto;
+    padding: 3px 10px;
+    border: 1px solid var(--color-accent);
+    border-radius: 4px;
+    background: none;
+    color: var(--color-accent);
+    font-size: 0.8em;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.12s;
+}
+.cal-view-btn:hover {
+    background: var(--color-accent);
+    color: white;
+}
+
+/* ============================================================
+   Document Viewer Overlay
+   ============================================================ */
+.doc-viewer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 3000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+.doc-viewer-overlay.active { display: flex; }
+
+.doc-viewer-content {
+    background: #fff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 680px;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+
+.doc-viewer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid #e0e0e0;
+    background: #fafafa;
+    border-radius: 12px 12px 0 0;
+}
+
+.doc-viewer-title {
+    font-weight: 600;
+    font-size: 0.95em;
+    color: #333;
+}
+
+.doc-viewer-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-sm {
+    padding: 5px 12px;
+    font-size: 0.82em;
+}
+
+.doc-viewer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 32px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #111;
+    line-height: 1.6;
+}
+
+/* ── Document content styles (pw-*) ── */
+.pw-doc-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #333;
+}
+.pw-doc-title {
+    font-size: 1.25em;
+    font-weight: bold;
+    letter-spacing: 0.12em;
+}
+.pw-doc-subtitle {
+    font-size: 0.82em;
+    color: #666;
+    margin-top: 2px;
+}
+.pw-doc-meta {
+    font-size: 0.82em;
+    color: #555;
+    margin-top: 4px;
+}
+.pw-section {
+    margin: 14px 0;
+}
+.pw-section h3 {
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 4px;
+    margin: 0 0 8px;
+}
+.pw-eod-section { margin: 14px 0; }
+.pw-eod-section h3 {
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 4px;
+    margin: 0 0 8px;
+}
+
+.doc-viewer-body table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+    margin-bottom: 4px;
+}
+.doc-viewer-body th,
+.doc-viewer-body td {
+    padding: 4px 8px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+.doc-viewer-body th {
+    background: #f5f5f5;
+    font-weight: 600;
+}
+.doc-viewer-body tr.pw-total-row td {
+    font-weight: bold;
+    border-top: 2px solid #333;
+    border-bottom: none;
+}
+.pw-right { text-align: right !important; }
+
+.pw-doc-footer {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 0.78em;
+    color: #999;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+}
+
+/* receipt content inherits existing receipt styles when shown in viewer */
+.doc-viewer-body .receipt-header { text-align: center; margin-bottom: 12px; }
+.doc-viewer-body .receipt-title  { font-size: 1.2em; font-weight: bold; letter-spacing: 0.1em; }
+.doc-viewer-body .receipt-items  { margin: 10px 0; }
+.doc-viewer-body .receipt-item   { display: flex; justify-content: space-between; padding: 3px 0; }
+.doc-viewer-body .receipt-totals { border-top: 1px dashed #999; margin-top: 8px; padding-top: 8px; }
+.doc-viewer-body .receipt-total-row { display: flex; justify-content: space-between; padding: 2px 0; }
+.doc-viewer-body .grand-total    { font-weight: bold; font-size: 1.05em; border-top: 1px solid #333; margin-top: 4px; padding-top: 4px; }
+.doc-viewer-body .receipt-footer { text-align: center; margin-top: 12px; color: #888; font-size: 0.85em; }
