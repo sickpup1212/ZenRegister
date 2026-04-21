@@ -2166,3 +2166,51 @@ body {
 .doc-viewer-body .receipt-total-row { display: flex; justify-content: space-between; padding: 2px 0; }
 .doc-viewer-body .grand-total    { font-weight: bold; font-size: 1.05em; border-top: 1px solid #333; margin-top: 4px; padding-top: 4px; }
 .doc-viewer-body .receipt-footer { text-align: center; margin-top: 12px; color: #888; font-size: 0.85em; }
+
+
+/* ============================================================
+   Account Balances Display – Start Day & EOD
+   ============================================================ */
+.account-balances-display {
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.account-balance-item {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md) var(--space-lg);
+    background: var(--color-bg);
+    border-radius: var(--radius-md);
+    border: 2px solid var(--color-border);
+}
+
+.account-balance-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: var(--font-small);
+    font-weight: 600;
+    color: var(--color-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.account-balance-value {
+    font-size: var(--font-heading);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.account-balance-value.cash {
+    color: var(--color-success);
+}
+
+.account-balance-value.bank {
+    color: var(--color-accent);
+}
+
